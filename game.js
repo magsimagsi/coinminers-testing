@@ -312,39 +312,29 @@ function upgradeSpeed() {
     }
 }
 
-// Claim Tokens - Convert game MTK to real tokens
+// Claim Tokens - FIXED VERSION
 async function claimTokens() {
     console.log('Claim tokens called. Current claimable balance:', claimableBalance);
     
     if (claimableBalance <= 0) {
-        showNotification('No tokens to claim!', 'error');
+        showNotification('No tokens to claim! Mine some first.', 'error');
         return;
     }
     
-    // Check connection using verifyConnection
-    const connectionStatus = await verifyConnection();
-    console.log('Connection status:', connectionStatus);
-    
-    if (!connectionStatus.connected) {
-        console.log('Wallet not connected, attempting to fix...');
-        
-        // Try to fix connection
-        if (typeof checkAndFixConnection === 'function') {
-            const fixed = await checkAndFixConnection();
-            if (!fixed) {
-                const connectFirst = confirm('Wallet not connected. Connect wallet to claim real MTK tokens! Connect now?');
-                if (connectFirst && typeof connectWallet === 'function') {
-                    await connectWallet();
-                    if (!window.connected) {
-                        showNotification('Please connect wallet first', 'error');
-                        return;
-                    }
-                } else {
-                    return;
-                }
+    // Check if wallet is connected
+    if (!window.connected || !window.userAccount) {
+        const connectFirst = confirm('Wallet not connected. Connect wallet to claim MTK tokens?');
+        if (connectFirst && typeof connectWallet === 'function') {
+            await connectWallet();
+            
+            // Wait a moment for connection
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            if (!window.connected) {
+                showNotification('Please connect wallet first', 'error');
+                return;
             }
         } else {
-            showNotification('Please connect wallet first', 'error');
             return;
         }
     }
@@ -367,16 +357,16 @@ async function claimTokens() {
         
         console.log('Attempting to mint', claimedAmount, 'MTK tokens...');
         
+        // Show notification
+        showNotification(`Claiming ${claimedAmount} MTK...`, 'info');
+        
         // Convert game tokens to real blockchain tokens
         const success = await mintGameTokens(claimedAmount);
         
         if (success) {
             // Update game state
-            if (window.walletTokenBalance !== undefined) {
-                window.walletTokenBalance += claimedAmount;
-            }
             totalClaimed += claimedAmount;
-            claimableBalance = 0;
+            claimableBalance -= claimedAmount;
             score = 0;
             
             updateGameUI();
@@ -387,6 +377,9 @@ async function claimTokens() {
             setTimeout(() => {
                 if (typeof checkMTKBalance === 'function') {
                     checkMTKBalance();
+                }
+                if (typeof updateBalances === 'function') {
+                    updateBalances();
                 }
             }, 1000);
         } else {
