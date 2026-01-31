@@ -34,7 +34,7 @@ async function getMTKTokens() {
     
     // Call the faucet function
     if (typeof getMTKFromFaucet === 'function') {
-        // Add this line HERE - before calling getMTKFromFaucet
+        // Show notification before calling
         if (typeof showNotification !== 'undefined') {
             showNotification('Getting MTK tokens...', 'info');
         }
@@ -155,7 +155,7 @@ function getTestETH(faucetType) {
     }
 }
 
-// Verify connection helper - UPDATE THIS FUNCTION TOO
+// Verify connection helper
 async function verifyConnection() {
     if (typeof window.ethereum === 'undefined') {
         return { connected: false, reason: 'MetaMask not installed' };
@@ -165,14 +165,11 @@ async function verifyConnection() {
         const accounts = await window.ethereum.request({ method: 'eth_accounts' });
         const chainId = await window.ethereum.request({ method: 'eth_chainId' });
         
-        // FIX: Accept both string and number format for Sepolia
-        const chainIdStr = typeof chainId === 'string' ? chainId : '0x' + chainId.toString(16);
-        
         return {
             connected: accounts.length > 0,
             account: accounts[0] || null,
             chainId: chainId,
-            isSepolia: chainIdStr === '0xaa36a7' || chainId === 11155111 || chainId === '11155111'
+            isSepolia: chainId === '0xaa36a7' || chainId === 11155111
         };
     } catch (error) {
         return { connected: false, reason: error.message };
