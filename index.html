@@ -241,17 +241,20 @@
                         <div style="margin-top: var(--spacing-lg); padding: var(--spacing-md); background: rgba(var(--primary), 0.1); border-radius: var(--border-radius);">
                             <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: var(--spacing-sm);">
                                 <i class="fas fa-info-circle"></i> 
-                                <strong>MTK Token Contract:</strong>
+                                <strong>MTK Token Contract (USDC Test Token on Sepolia):</strong>
                             </p>
                             <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--primary); word-break: break-all; background: rgba(0,0,0,0.2); padding: var(--spacing-sm); border-radius: var(--border-radius-sm);">
-                                0x3D6Eb3Fc92C799CB6b8716c5c8E5f8A78eFE8A43
+                                0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238
                             </div>
-                            <a href="https://sepolia.etherscan.io/address/0x3D6Eb3Fc92C799CB6b8716c5c8E5f8A78eFE8A43" 
+                            <a href="https://sepolia.etherscan.io/address/0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238" 
                                target="_blank" 
                                class="etherscan-link" 
                                style="display: inline-flex; align-items: center; gap: var(--spacing-xs); margin-top: var(--spacing-sm);">
                                 <i class="fas fa-external-link-alt"></i> View on Etherscan
                             </a>
+                            <p style="color: var(--text-tertiary); font-size: 0.8rem; margin-top: var(--spacing-xs);">
+                                Note: Using USDC test token displayed as MTK in the game
+                            </p>
                         </div>
                     </div>
                     
@@ -338,9 +341,9 @@
                             </div>
                             <div class="faucet-content">
                                 <h3>MTK Game Token</h3>
-                                <p class="faucet-description">Real ERC20 token on Sepolia network</p>
+                                <p class="faucet-description">USDC test token displayed as MTK</p>
                                 <div class="token-info">
-                                    <span class="token-address">0x3D6Eb3Fc92C799CB6b8716c5c8E5f8A78eFE8A43</span>
+                                    <span class="token-address">0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238</span>
                                 </div>
                                 <div style="margin-top: var(--spacing-md); display: flex; gap: var(--spacing-sm);">
                                     <button onclick="addMTKToMetaMask()" style="background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
@@ -404,7 +407,7 @@
                                 <h3>DAI Token</h3>
                                 <p class="faucet-description">Stablecoin Test Token</p>
                                 <div class="token-info">
-                                    <span class="token-address">0x3e622...C5d6</span>
+                                    <span class="token-address">0xFF34B3...a357</span>
                                 </div>
                             </div>
                             <button class="btn btn-faucet" onclick="getDaiTokens()">
@@ -432,7 +435,7 @@
                                 <span class="step-number">2</span>
                                 <div class="step-content">
                                     <strong>Get MTK Tokens</strong>
-                                    <p>Click "Get MTK" button to receive 100 test tokens from faucet</p>
+                                    <p>Click "Get MTK" for instructions to get USDC test tokens</p>
                                 </div>
                             </div>
                         </li>
@@ -585,7 +588,7 @@
         <div style="margin-bottom: var(--spacing-sm);">
             <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">Contract Address:</div>
             <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; word-break: break-all;">
-                0x3D6Eb3Fc92C799CB6b8716c5c8E5f8A78eFE8A43
+                0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238
             </div>
         </div>
         
@@ -594,14 +597,14 @@
                     style="flex: 1; background: var(--primary); color: black; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold;">
                 <i class="fas fa-plus-circle"></i> Add to MetaMask
             </button>
-            <button onclick="window.open('https://sepolia.etherscan.io/address/0x3D6Eb3Fc92C799CB6b8716c5c8E5f8A78eFE8A43', '_blank')" 
+            <button onclick="window.open('https://sepolia.etherscan.io/address/0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238', '_blank')" 
                     style="flex: 1; background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 12px;">
                 <i class="fas fa-external-link-alt"></i> Etherscan
             </button>
         </div>
         
         <div style="display: flex; gap: 8px;">
-            <button onclick="getMTKFromFaucet()" 
+            <button onclick="getMTKTokens()" 
                     style="flex: 1; background: var(--success); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 12px;">
                 <i class="fas fa-gift"></i> Get MTK
             </button>
