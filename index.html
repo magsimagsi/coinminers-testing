@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTK Coin Miner - Complete Game</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-coins"></i>
+                <span>MTK Miner</span>
+            </div>
+            <div class="nav-links">
+                <a href="#game" class="nav-link active"><i class="fas fa-gamepad"></i> Game</a>
+                <a href="#wallet" class="nav-link"><i class="fas fa-wallet"></i> Wallet</a>
+                <a href="#faucet" class="nav-link"><i class="fas fa-faucet"></i> Faucets</a>
+                <a href="#stats" class="nav-link"><i class="fas fa-chart-bar"></i> Stats</a>
+            </div>
+            <div class="nav-wallet">
+                <div class="wallet-status" id="walletStatus">
+                    <i class="fas fa-plug"></i>
+                    <span>Not Connected</span>
+                </div>
+                <button class="btn btn-connect" id="connectBtn">
+                    <i class="fas fa-plug"></i> Connect Wallet
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="main-container">
+        <!-- Game Section -->
+        <section id="game" class="section active">
+            <div class="section-header">
+                <h1><i class="fas fa-gamepad"></i> Mining Game</h1>
+                <p>Click the golden spots to mine MTK coins!</p>
+            </div>
+            
+            <div class="game-area">
+                <div class="game-container">
+                    <canvas id="gameCanvas"></canvas>
+                    <div class="game-overlay">
+                        <div class="mining-stats">
+                            <div class="stat">
+                                <span class="stat-label">Coins Mined</span>
+                                <span class="stat-value" id="score">0</span>
+                            </div>
+                            <div class="stat">
+                                <span class="stat-label">Mining Power</span>
+                                <span class="stat-value" id="multiplier">1x</span>
+                            </div>
+                        </div>
+                        <div class="mining-tip">
+                            <i class="fas fa-lightbulb"></i> Click the golden spots to mine!
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="game-controls">
+                    <div class="controls-grid">
+                        <button class="btn btn-game" onclick="upgradeMiningPower()">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>Upgrade Power</span>
+                            <small>100 MTK</small>
+                        </button>
+                        <button class="btn btn-game" onclick="buyMiner()">
+                            <i class="fas fa-hard-hat"></i>
+                            <span>Buy Miner</span>
+                            <small>500 MTK</small>
+                        </button>
+                        <button class="btn btn-game" onclick="upgradeSpeed()">
+                            <i class="fas fa-bolt"></i>
+                            <span>Increase Speed</span>
+                            <small>250 MTK</small>
+                        </button>
+                        <button class="btn btn-claim" onclick="claimTokens()">
+                            <i class="fas fa-coins"></i>
+                            <span>Claim MTK</span>
+                            <small id="claimableAmount">0 available</small>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="game-stats">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="miners">1</div>
+                            <div class="stat-label">Active Miners</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="speed">1.0</div>
+                            <div class="stat-label">Mining Speed</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-database"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalMined">0</div>
+                            <div class="stat-label">Total Mined</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="stat-content">
+                            <div class="stat-value" id="totalClaimed">0</div>
+                            <div class="stat-label">Total Claimed</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Wallet Section -->
+        <section id="wallet" class="section">
+            <div class="section-header">
+                <h1><i class="fas fa-wallet"></i> Wallet & Transactions</h1>
+                <p>Manage your tokens and transactions</p>
+            </div>
+            
+            <div class="wallet-container">
+                <div class="wallet-info">
+                    <div class="info-card">
+                        <h3><i class="fas fa-info-circle"></i> Wallet Information</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Account Address</span>
+                                <span class="info-value" id="accountAddress">Not connected</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Network</span>
+                                <span class="info-value" id="network">-</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">ETH Balance</span>
+                                <span class="info-value" id="ethBalance">0 ETH</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Last Block</span>
+                                <span class="info-value" id="lastBlock">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="info-card">
+                        <h3><i class="fas fa-chart-line"></i> Token Balances</h3>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="info-label">Game Balance</span>
+                                <span class="info-value" id="gameBalance">0 MTK</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Claimable Balance</span>
+                                <span class="info-value highlight" id="claimableBalance">0 MTK</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Wallet Balance</span>
+                                <span class="info-value" id="walletTokenBalance">0 MTK</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="info-label">Total Withdrawn</span>
+                                <span class="info-value" id="totalWithdrawn">0 MTK</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="transaction-section">
+                    <div class="transaction-card">
+                        <h3><i class="fas fa-exchange-alt"></i> Withdraw Tokens</h3>
+                        <div class="form-group">
+                            <label for="withdrawAmount">
+                                <i class="fas fa-coins"></i> Amount to Withdraw
+                            </label>
+                            <input type="number" id="withdrawAmount" placeholder="Enter amount" min="1" value="10">
+                        </div>
+                        <div class="form-group">
+                            <label for="recipientAddress">
+                                <i class="fas fa-user-circle"></i> Recipient Address
+                            </label>
+                            <input type="text" id="recipientAddress" 
+                                   placeholder="0x..." 
+                                   value="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266">
+                        </div>
+                        
+                        <div class="gas-estimation" id="withdrawGasInfo">
+                            <i class="fas fa-gas-pump"></i>
+                            <span>Enter amount to estimate gas</span>
+                        </div>
+                        
+                        <div class="action-buttons">
+                            <button class="btn btn-estimate" onclick="estimateWithdrawGas()">
+                                <i class="fas fa-calculator"></i> Estimate Gas
+                            </button>
+                            <button class="btn btn-withdraw" onclick="withdrawTokens()" disabled>
+                                <i class="fas fa-paper-plane"></i> Withdraw Tokens
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="transaction-card">
+                        <h3><i class="fas fa-history"></i> Transaction History</h3>
+                        <div class="transactions-list" id="transactionsList">
+                            <div class="transaction-item empty">
+                                <i class="fas fa-history"></i>
+                                <span>No transactions yet</span>
+                            </div>
+                        </div>
+                        <button class="btn btn-refresh" onclick="refreshTransactions()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Faucet Section -->
+        <section id="faucet" class="section">
+            <div class="section-header">
+                <h1><i class="fas fa-faucet"></i> Get Test Tokens</h1>
+                <p>Get free test tokens on Sepolia network</p>
+            </div>
+            
+            <div class="faucet-container">
+                <!-- ETH Faucets -->
+                <div class="faucet-category">
+                    <h2><i class="fas fa-ethereum"></i> Get Sepolia ETH</h2>
+                    <p class="category-description">You need ETH for gas fees</p>
+                    
+                    <div class="faucet-grid">
+                        <div class="faucet-card">
+                            <div class="faucet-icon">
+                                <i class="fas fa-rocket"></i>
+                            </div>
+                            <div class="faucet-content">
+                                <h3>Alchemy Faucet</h3>
+                                <p class="faucet-description">Most reliable - 0.5 ETH per day</p>
+                                <div class="faucet-info">
+                                    <span><i class="fas fa-check-circle"></i> Free account required</span>
+                                    <span><i class="fas fa-bolt"></i> Fast delivery</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-faucet" onclick="window.open('https://sepoliafaucet.com', '_blank')">
+                                <i class="fas fa-external-link-alt"></i> Get ETH
+                            </button>
+                        </div>
+                        
+                        <div class="faucet-card">
+                            <div class="faucet-icon">
+                                <i class="fas fa-tint"></i>
+                            </div>
+                            <div class="faucet-content">
+                                <h3>Infura Faucet</h3>
+                                <p class="faucet-description">Infura account required</p>
+                                <div class="faucet-info">
+                                    <span><i class="fas fa-check-circle"></i> Free account</span>
+                                    <span><i class="fas fa-shield-alt"></i> Secure</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-faucet" onclick="window.open('https://www.infura.io/faucet/sepolia', '_blank')">
+                                <i class="fas fa-external-link-alt"></i> Get ETH
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Token Faucets -->
+                <div class="faucet-category">
+                    <h2><i class="fas fa-coins"></i> Get Test Tokens</h2>
+                    <p class="category-description">ERC20 tokens for testing</p>
+                    
+                    <div class="faucet-grid">
+                        <div class="faucet-card">
+                            <div class="faucet-icon" style="background: linear-gradient(135deg, #ff007a, #ff6b6b);">
+                                <i class="fas fa-exchange-alt"></i>
+                            </div>
+                            <div class="faucet-content">
+                                <h3>UNI Token</h3>
+                                <p class="faucet-description">Uniswap Governance Token</p>
+                                <div class="token-info">
+                                    <span class="token-address">0x1f984...F984</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-faucet" onclick="getUniTokens()">
+                                <i class="fas fa-gift"></i> Get UNI
+                            </button>
+                        </div>
+                        
+                        <div class="faucet-card">
+                            <div class="faucet-icon" style="background: linear-gradient(135deg, #2a5ada, #1a91ff);">
+                                <i class="fas fa-link"></i>
+                            </div>
+                            <div class="faucet-content">
+                                <h3>LINK Token</h3>
+                                <p class="faucet-description">Chainlink Oracle Token</p>
+                                <div class="token-info">
+                                    <span class="token-address">0x779877...4789</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-faucet" onclick="getLinkTokens()">
+                                <i class="fas fa-gift"></i> Get LINK
+                            </button>
+                        </div>
+                        
+                        <div class="faucet-card">
+                            <div class="faucet-icon" style="background: linear-gradient(135deg, #f6851b, #f5b342);">
+                                <i class="fas fa-university"></i>
+                            </div>
+                            <div class="faucet-content">
+                                <h3>DAI Token</h3>
+                                <p class="faucet-description">Stablecoin Test Token</p>
+                                <div class="token-info">
+                                    <span class="token-address">0x3e622...C5d6</span>
+                                </div>
+                            </div>
+                            <button class="btn btn-faucet" onclick="getDaiTokens()">
+                                <i class="fas fa-gift"></i> Get DAI
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Instructions -->
+                <div class="instructions-card">
+                    <h3><i class="fas fa-graduation-cap"></i> How to Get Tokens</h3>
+                    <ol class="instructions-list">
+                        <li>
+                            <div class="instruction-step">
+                                <span class="step-number">1</span>
+                                <div class="step-content">
+                                    <strong>Get Sepolia ETH</strong>
+                                    <p>Use Alchemy or Infura faucet to get test ETH</p>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="instruction-step">
+                                <span class="step-number">2</span>
+                                <div class="step-content">
+                                    <strong>Go to Uniswap</strong>
+                                    <p>Visit <a href="https://app.uniswap.org" target="_blank">app.uniswap.org</a></p>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="instruction-step">
+                                <span class="step-number">3</span>
+                                <div class="step-content">
+                                    <strong>Swap ETH for Tokens</strong>
+                                    <p>Connect wallet and swap 0.01 ETH for UNI/LINK/DAI</p>
+                                </div>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="instruction-step">
+                                <span class="step-number">4</span>
+                                <div class="step-content">
+                                    <strong>Test Withdrawals</strong>
+                                    <p>Use tokens to test withdrawal functionality</p>
+                                </div>
+                            </div>
+                        </li>
+                    </ol>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section id="stats" class="section">
+            <div class="section-header">
+                <h1><i class="fas fa-chart-bar"></i> Game Statistics</h1>
+                <p>Track your mining progress and earnings</p>
+            </div>
+            
+            <div class="stats-container">
+                <div class="stats-overview">
+                    <div class="overview-card">
+                        <div class="overview-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                            <i class="fas fa-mountain"></i>
+                        </div>
+                        <div class="overview-content">
+                            <h3>Total Earnings</h3>
+                            <div class="overview-value" id="totalEarnings">0 MTK</div>
+                            <div class="overview-label">All time mined</div>
+                        </div>
+                    </div>
+                    
+                    <div class="overview-card">
+                        <div class="overview-icon" style="background: linear-gradient(135deg, #f093fb, #f5576c);">
+                            <i class="fas fa-wallet"></i>
+                        </div>
+                        <div class="overview-content">
+                            <h3>Wallet Balance</h3>
+                            <div class="overview-value" id="statsWalletBalance">0 MTK</div>
+                            <div class="overview-label">Available to withdraw</div>
+                        </div>
+                    </div>
+                    
+                    <div class="overview-card">
+                        <div class="overview-icon" style="background: linear-gradient(135deg, #4facfe, #00f2fe);">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <div class="overview-content">
+                            <h3>Mining Efficiency</h3>
+                            <div class="overview-value" id="miningEfficiency">0 MTK/s</div>
+                            <div class="overview-label">Coins per second</div>
+                        </div>
+                    </div>
+                    
+                    <div class="overview-card">
+                        <div class="overview-icon" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">
+                            <i class="fas fa-trophy"></i>
+                        </div>
+                        <div class="overview-content">
+                            <h3>Best Session</h3>
+                            <div class="overview-value" id="bestSession">0 MTK</div>
+                            <div class="overview-label">Highest in one game</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stats-charts">
+                    <div class="chart-card">
+                        <h3><i class="fas fa-chart-line"></i> Mining Progress</h3>
+                        <div class="chart-container">
+                            <canvas id="miningChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <h3><i class="fas fa-chart-pie"></i> Token Distribution</h3>
+                        <div class="chart-container">
+                            <canvas id="distributionChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stats-history">
+                    <div class="history-card">
+                        <h3><i class="fas fa-history"></i> Recent Activity</h3>
+                        <div class="activity-list" id="activityList">
+                            <div class="activity-item">
+                                <div class="activity-icon">
+                                    <i class="fas fa-coins"></i>
+                                </div>
+                                <div class="activity-content">
+                                    <div class="activity-title">Started Mining</div>
+                                    <div class="activity-time">Just now</div>
+                                </div>
+                                <div class="activity-amount">+0 MTK</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Notifications -->
+    <div class="notification-container" id="notificationContainer">
+        <!-- Notifications will be inserted here -->
+    </div>
+
+    <!-- Pending Overlay -->
+    <div class="pending-overlay" id="pendingOverlay">
+        <div class="pending-content">
+            <div class="pending-spinner"></div>
+            <div class="pending-text" id="pendingText">Processing Transaction...</div>
+            <div class="pending-details">
+                <div class="tx-hash" id="pendingTxHash"></div>
+                <div class="gas-info" id="pendingGasInfo"></div>
+            </div>
+            <button class="btn btn-cancel" onclick="hidePendingOverlay()">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="utils.js"></script>
+    <script src="game.js"></script>
+    <script src="blockchain.js"></script>
+    <script src="faucet.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
