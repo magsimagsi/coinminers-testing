@@ -115,6 +115,28 @@ function getDaiTokens() {
     window.open('https://app.uniswap.org/swap', '_blank');
 }
 
+// Get USDC Tokens
+function getUSDCTokens() {
+    if (!window.connected) {
+        showNotification('Connect wallet first!', 'error');
+        return;
+    }
+    
+    showNotification('To get USDC: Swap ETH for USDC on Uniswap', 'info');
+    window.open('https://app.uniswap.org/swap', '_blank');
+}
+
+// Get AAVE Tokens
+function getAAVETokens() {
+    if (!window.connected) {
+        showNotification('Connect wallet first!', 'error');
+        return;
+    }
+    
+    showNotification('To get AAVE: Swap ETH for AAVE on Uniswap', 'info');
+    window.open('https://app.uniswap.org/swap', '_blank');
+}
+
 // Copy Address to Clipboard
 function copyAddress() {
     if (!window.userAccount) {
@@ -150,5 +172,7 @@ function getTestETH(faucetType) {
 window.getUniTokens = getUniTokens;
 window.getLinkTokens = getLinkTokens;
 window.getDaiTokens = getDaiTokens;
+window.getUSDCTokens = getUSDCTokens;
+window.getAAVETokens = getAAVETokens;
 window.copyAddress = copyAddress;
 window.getTestETH = getTestETH;
