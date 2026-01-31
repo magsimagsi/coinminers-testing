@@ -300,21 +300,50 @@ function upgradeSpeed() {
     }
 }
 
-function claimTokens() {
+// UPDATED: Claim Tokens - Now converts to real blockchain tokens
+async function claimTokens() {
     if (claimableBalance <= 0) {
         showNotification('No tokens to claim!', 'error');
         return;
     }
     
-    const claimedAmount = claimableBalance;
-    walletTokenBalance += claimedAmount;
-    totalClaimed += claimedAmount;
-    claimableBalance = 0;
-    score = 0;
+    if (!window.connected) {
+        showNotification('Connect wallet first to claim real tokens!', 'error');
+        return;
+    }
     
-    updateGameUI();
-    showNotification(`✅ Claimed ${claimedAmount} MTK to wallet!`, 'success');
-    addActivity('Claimed', `${claimedAmount} MTK`);
+    const claimedAmount = claimableBalance;
+    
+    try {
+        // Convert game tokens to real blockchain tokens
+        const success = await convertGameToRealMTK(claimedAmount);
+        
+        if (success) {
+            // Update game state
+            walletTokenBalance += claimedAmount;
+            totalClaimed += claimedAmount;
+            claimableBalance = 0;
+            score = 0;
+            
+            updateGameUI();
+            showNotification(`✅ Claimed ${claimedAmount} MTK to your wallet!`, 'success');
+            addActivity('Claimed', `${claimedAmount} MTK`);
+            
+            // Ask to add MTK to MetaMask
+            setTimeout(() => {
+                const addToMM = confirm('Add MTK token to MetaMask for easy viewing?');
+                if (addToMM && typeof addMTKToMetaMask === 'function') {
+                    addMTKToMetaMask();
+                }
+            }, 1000);
+        } else {
+            showNotification('Failed to claim tokens. Try getting MTK from faucet first.', 'error');
+        }
+        
+    } catch (error) {
+        console.error('Claim error:', error);
+        showNotification('Claim failed: ' + error.message, 'error');
+    }
 }
 
 // Add Activity to Log
