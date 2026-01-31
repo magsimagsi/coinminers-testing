@@ -3,12 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MTK Coin Miner - Blockchain Mining Game</title>
+    <title>MTK Coin Miner - Complete Game</title>
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
     <!-- Navigation -->
@@ -19,25 +16,17 @@
                 <span>MTK Miner</span>
             </div>
             <div class="nav-links">
-                <a href="#game" class="nav-link active">
-                    <i class="fas fa-gamepad"></i> Game
-                </a>
-                <a href="#wallet" class="nav-link">
-                    <i class="fas fa-wallet"></i> Wallet
-                </a>
-                <a href="#faucet" class="nav-link">
-                    <i class="fas fa-faucet"></i> Faucets
-                </a>
-                <a href="#stats" class="nav-link">
-                    <i class="fas fa-chart-bar"></i> Stats
-                </a>
+                <a href="#game" class="nav-link active"><i class="fas fa-gamepad"></i> Game</a>
+                <a href="#wallet" class="nav-link"><i class="fas fa-wallet"></i> Wallet</a>
+                <a href="#faucet" class="nav-link"><i class="fas fa-faucet"></i> Faucets</a>
+                <a href="#stats" class="nav-link"><i class="fas fa-chart-bar"></i> Stats</a>
             </div>
             <div class="nav-wallet">
-                <div class="wallet-status" id="walletStatus" title="Click for MTK token info">
+                <div class="wallet-status" id="walletStatus">
                     <i class="fas fa-plug"></i>
                     <span>Not Connected</span>
                 </div>
-                <button class="btn btn-connect" id="connectBtn" onclick="connectWallet()">
+                <button class="btn btn-connect" id="connectBtn">
                     <i class="fas fa-plug"></i> Connect Wallet
                 </button>
             </div>
@@ -49,8 +38,8 @@
         <!-- Game Section -->
         <section id="game" class="section active">
             <div class="section-header">
-                <h1><i class="fas fa-gamepad"></i> MTK Mining Game</h1>
-                <p>Click the golden spots to mine MTK coins! Claim them to get real ERC20 tokens on Sepolia.</p>
+                <h1><i class="fas fa-gamepad"></i> Mining Game</h1>
+                <p>Click the golden spots to mine MTK coins!</p>
             </div>
             
             <div class="game-area">
@@ -68,7 +57,7 @@
                             </div>
                         </div>
                         <div class="mining-tip">
-                            <i class="fas fa-lightbulb"></i> Click the golden spots to mine MTK tokens!
+                            <i class="fas fa-lightbulb"></i> Click the golden spots to mine!
                         </div>
                     </div>
                 </div>
@@ -90,7 +79,7 @@
                             <span>Increase Speed</span>
                             <small>250 MTK</small>
                         </button>
-                        <button class="btn btn-claim" onclick="claimTokens()" id="claimBtn">
+                        <button class="btn btn-claim" onclick="claimTokens()">
                             <i class="fas fa-coins"></i>
                             <span>Claim MTK</span>
                             <small id="claimableAmount">0 available</small>
@@ -145,7 +134,7 @@
         <section id="wallet" class="section">
             <div class="section-header">
                 <h1><i class="fas fa-wallet"></i> Wallet & Transactions</h1>
-                <p>Manage your MTK tokens and blockchain transactions on Sepolia network</p>
+                <p>Manage your tokens and transactions</p>
             </div>
             
             <div class="wallet-container">
@@ -173,7 +162,7 @@
                     </div>
                     
                     <div class="info-card">
-                        <h3><i class="fas fa-chart-line"></i> MTK Token Balances</h3>
+                        <h3><i class="fas fa-chart-line"></i> Token Balances</h3>
                         <div class="info-grid">
                             <div class="info-item">
                                 <span class="info-label">Game Balance</span>
@@ -192,25 +181,17 @@
                                 <span class="info-value" id="totalWithdrawn">0 MTK</span>
                             </div>
                         </div>
-                        <div style="margin-top: var(--spacing-lg); display: flex; gap: var(--spacing-sm);">
-                            <button class="btn" onclick="addMTKToMetaMask()" style="flex: 1; background: var(--primary); color: black;">
-                                <i class="fas fa-plus-circle"></i> Add MTK to MetaMask
-                            </button>
-                            <button class="btn" onclick="checkMTKBalance()" style="flex: 1; background: var(--info); color: white;">
-                                <i class="fas fa-sync-alt"></i> Check Balance
-                            </button>
-                        </div>
                     </div>
                 </div>
                 
                 <div class="transaction-section">
                     <div class="transaction-card">
-                        <h3><i class="fas fa-exchange-alt"></i> Transfer MTK Tokens</h3>
+                        <h3><i class="fas fa-exchange-alt"></i> Withdraw Tokens</h3>
                         <div class="form-group">
                             <label for="withdrawAmount">
-                                <i class="fas fa-coins"></i> Amount to Send
+                                <i class="fas fa-coins"></i> Amount to Withdraw
                             </label>
-                            <input type="number" id="withdrawAmount" placeholder="Enter amount" min="0.1" step="0.1" value="10">
+                            <input type="number" id="withdrawAmount" placeholder="Enter amount" min="1" value="10">
                         </div>
                         <div class="form-group">
                             <label for="recipientAddress">
@@ -218,13 +199,10 @@
                             </label>
                             <input type="text" id="recipientAddress" 
                                    placeholder="0x..." 
-                                   value="">
-                            <small style="color: var(--text-tertiary); margin-top: var(--spacing-xs); display: block;">
-                                Leave empty to send to yourself
-                            </small>
+                                   value="0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266">
                         </div>
                         
-                        <div class="gas-estimation" id="withdrawGasInfo" style="display: none;">
+                        <div class="gas-estimation" id="withdrawGasInfo">
                             <i class="fas fa-gas-pump"></i>
                             <span>Enter amount to estimate gas</span>
                         </div>
@@ -234,27 +212,8 @@
                                 <i class="fas fa-calculator"></i> Estimate Gas
                             </button>
                             <button class="btn btn-withdraw" onclick="withdrawTokens()" disabled>
-                                <i class="fas fa-paper-plane"></i> Send MTK
+                                <i class="fas fa-paper-plane"></i> Withdraw Tokens
                             </button>
-                        </div>
-                        
-                        <div style="margin-top: var(--spacing-lg); padding: var(--spacing-md); background: rgba(var(--primary), 0.1); border-radius: var(--border-radius);">
-                            <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: var(--spacing-sm);">
-                                <i class="fas fa-info-circle"></i> 
-                                <strong>MTK Token Contract (USDC Test Token on Sepolia):</strong>
-                            </p>
-                            <div style="font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; color: var(--primary); word-break: break-all; background: rgba(0,0,0,0.2); padding: var(--spacing-sm); border-radius: var(--border-radius-sm);">
-                                0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238
-                            </div>
-                            <a href="https://sepolia.etherscan.io/address/0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238" 
-                               target="_blank" 
-                               class="etherscan-link" 
-                               style="display: inline-flex; align-items: center; gap: var(--spacing-xs); margin-top: var(--spacing-sm);">
-                                <i class="fas fa-external-link-alt"></i> View on Etherscan
-                            </a>
-                            <p style="color: var(--text-tertiary); font-size: 0.8rem; margin-top: var(--spacing-xs);">
-                                Note: Using USDC test token displayed as MTK in the game
-                            </p>
                         </div>
                     </div>
                     
@@ -266,14 +225,9 @@
                                 <span>No transactions yet</span>
                             </div>
                         </div>
-                        <div style="display: flex; gap: var(--spacing-md);">
-                            <button class="btn btn-refresh" onclick="refreshTransactions()">
-                                <i class="fas fa-sync-alt"></i> Refresh
-                            </button>
-                            <button class="btn" onclick="switchToSepolia()" style="background: var(--warning); color: white;">
-                                <i class="fas fa-network-wired"></i> Switch to Sepolia
-                            </button>
-                        </div>
+                        <button class="btn btn-refresh" onclick="refreshTransactions()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
                     </div>
                 </div>
             </div>
@@ -283,14 +237,14 @@
         <section id="faucet" class="section">
             <div class="section-header">
                 <h1><i class="fas fa-faucet"></i> Get Test Tokens</h1>
-                <p>Get free test tokens on Sepolia network for testing</p>
+                <p>Get free test tokens on Sepolia network</p>
             </div>
             
             <div class="faucet-container">
                 <!-- ETH Faucets -->
                 <div class="faucet-category">
                     <h2><i class="fas fa-ethereum"></i> Get Sepolia ETH</h2>
-                    <p class="category-description">You need ETH for gas fees to send transactions</p>
+                    <p class="category-description">You need ETH for gas fees</p>
                     
                     <div class="faucet-grid">
                         <div class="faucet-card">
@@ -305,7 +259,7 @@
                                     <span><i class="fas fa-bolt"></i> Fast delivery</span>
                                 </div>
                             </div>
-                            <button class="btn btn-faucet" onclick="getTestETH('alchemy')">
+                            <button class="btn btn-faucet" onclick="window.open('https://sepoliafaucet.com', '_blank')">
                                 <i class="fas fa-external-link-alt"></i> Get ETH
                             </button>
                         </div>
@@ -322,49 +276,17 @@
                                     <span><i class="fas fa-shield-alt"></i> Secure</span>
                                 </div>
                             </div>
-                            <button class="btn btn-faucet" onclick="getTestETH('infura')">
+                            <button class="btn btn-faucet" onclick="window.open('https://www.infura.io/faucet/sepolia', '_blank')">
                                 <i class="fas fa-external-link-alt"></i> Get ETH
                             </button>
                         </div>
                     </div>
                 </div>
                 
-                <!-- MTK Token -->
+                <!-- Token Faucets -->
                 <div class="faucet-category">
-                    <h2><i class="fas fa-gamepad"></i> Get MTK Game Tokens</h2>
-                    <p class="category-description">Real ERC20 tokens for the game on Sepolia</p>
-                    
-                    <div class="faucet-grid">
-                        <div class="faucet-card">
-                            <div class="faucet-icon" style="background: linear-gradient(135deg, var(--primary), var(--primary-dark));">
-                                <i class="fas fa-coins"></i>
-                            </div>
-                            <div class="faucet-content">
-                                <h3>MTK Game Token</h3>
-                                <p class="faucet-description">USDC test token displayed as MTK</p>
-                                <div class="token-info">
-                                    <span class="token-address">0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238</span>
-                                </div>
-                                <div style="margin-top: var(--spacing-md); display: flex; gap: var(--spacing-sm);">
-                                    <button onclick="addMTKToMetaMask()" style="background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
-                                        <i class="fas fa-plus-circle"></i> Add to MetaMask
-                                    </button>
-                                    <button onclick="checkMTKBalance()" style="background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.9em;">
-                                        <i class="fas fa-wallet"></i> Check Balance
-                                    </button>
-                                </div>
-                            </div>
-                            <button class="btn btn-faucet" onclick="getMTKTokens()">
-                                <i class="fas fa-gift"></i> Get MTK
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Other Test Tokens -->
-                <div class="faucet-category">
-                    <h2><i class="fas fa-coins"></i> Other Test Tokens</h2>
-                    <p class="category-description">Standard ERC20 tokens for testing</p>
+                    <h2><i class="fas fa-coins"></i> Get Test Tokens</h2>
+                    <p class="category-description">ERC20 tokens for testing</p>
                     
                     <div class="faucet-grid">
                         <div class="faucet-card">
@@ -407,7 +329,7 @@
                                 <h3>DAI Token</h3>
                                 <p class="faucet-description">Stablecoin Test Token</p>
                                 <div class="token-info">
-                                    <span class="token-address">0xFF34B3...a357</span>
+                                    <span class="token-address">0x3e622...C5d6</span>
                                 </div>
                             </div>
                             <button class="btn btn-faucet" onclick="getDaiTokens()">
@@ -419,14 +341,14 @@
                 
                 <!-- Instructions -->
                 <div class="instructions-card">
-                    <h3><i class="fas fa-graduation-cap"></i> How to Get & Use Tokens</h3>
+                    <h3><i class="fas fa-graduation-cap"></i> How to Get Tokens</h3>
                     <ol class="instructions-list">
                         <li>
                             <div class="instruction-step">
                                 <span class="step-number">1</span>
                                 <div class="step-content">
                                     <strong>Get Sepolia ETH</strong>
-                                    <p>Use Alchemy or Infura faucet to get test ETH for gas fees</p>
+                                    <p>Use Alchemy or Infura faucet to get test ETH</p>
                                 </div>
                             </div>
                         </li>
@@ -434,8 +356,8 @@
                             <div class="instruction-step">
                                 <span class="step-number">2</span>
                                 <div class="step-content">
-                                    <strong>Get MTK Tokens</strong>
-                                    <p>Click "Get MTK" for instructions to get USDC test tokens</p>
+                                    <strong>Go to Uniswap</strong>
+                                    <p>Visit <a href="https://app.uniswap.org" target="_blank">app.uniswap.org</a></p>
                                 </div>
                             </div>
                         </li>
@@ -443,8 +365,8 @@
                             <div class="instruction-step">
                                 <span class="step-number">3</span>
                                 <div class="step-content">
-                                    <strong>Play the Game</strong>
-                                    <p>Mine MTK in the game and claim them to your wallet</p>
+                                    <strong>Swap ETH for Tokens</strong>
+                                    <p>Connect wallet and swap 0.01 ETH for UNI/LINK/DAI</p>
                                 </div>
                             </div>
                         </li>
@@ -452,8 +374,8 @@
                             <div class="instruction-step">
                                 <span class="step-number">4</span>
                                 <div class="step-content">
-                                    <strong>Transfer Tokens</strong>
-                                    <p>Use the wallet section to send MTK to other addresses</p>
+                                    <strong>Test Withdrawals</strong>
+                                    <p>Use tokens to test withdrawal functionality</p>
                                 </div>
                             </div>
                         </li>
@@ -541,10 +463,10 @@
                                     <i class="fas fa-coins"></i>
                                 </div>
                                 <div class="activity-content">
-                                    <div class="activity-title">Game Started</div>
+                                    <div class="activity-title">Started Mining</div>
                                     <div class="activity-time">Just now</div>
                                 </div>
-                                <div class="activity-amount">Welcome!</div>
+                                <div class="activity-amount">+0 MTK</div>
                             </div>
                         </div>
                     </div>
@@ -573,62 +495,7 @@
         </div>
     </div>
 
-    <!-- MTK Token Panel (Hidden by default) -->
-    <div class="mtk-token-panel" id="mtkTokenPanel">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-sm);">
-            <h4 style="color: var(--primary); margin: 0; font-size: 16px;">
-                <i class="fas fa-coins"></i> MTK Token
-            </h4>
-            <button onclick="document.getElementById('mtkTokenPanel').style.display='none'" 
-                    style="background: none; border: none; color: var(--text-tertiary); cursor: pointer; font-size: 18px;">
-                ×
-            </button>
-        </div>
-        
-        <div style="margin-bottom: var(--spacing-sm);">
-            <div style="font-size: 12px; color: var(--text-secondary); margin-bottom: 5px;">Contract Address:</div>
-            <div style="background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; word-break: break-all;">
-                0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238
-            </div>
-        </div>
-        
-        <div style="display: flex; gap: 8px; margin-bottom: var(--spacing-sm);">
-            <button onclick="addMTKToMetaMask()" 
-                    style="flex: 1; background: var(--primary); color: black; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold;">
-                <i class="fas fa-plus-circle"></i> Add to MetaMask
-            </button>
-            <button onclick="window.open('https://sepolia.etherscan.io/address/0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238', '_blank')" 
-                    style="flex: 1; background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 12px;">
-                <i class="fas fa-external-link-alt"></i> Etherscan
-            </button>
-        </div>
-        
-        <div style="display: flex; gap: 8px;">
-            <button onclick="getMTKTokens()" 
-                    style="flex: 1; background: var(--success); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 12px;">
-                <i class="fas fa-gift"></i> Get MTK
-            </button>
-            <button onclick="checkMTKBalance()" 
-                    style="flex: 1; background: rgba(255,255,255,0.1); color: white; border: none; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 12px;">
-                <i class="fas fa-wallet"></i> Check Balance
-            </button>
-        </div>
-    </div>
-
-    <!-- Debug Panel (Only shows in development) -->
-    <div class="debug-panel" id="debugPanel" style="display: none;">
-        <button onclick="debugWallet()">
-            Debug
-        </button>
-        <button onclick="checkExistingConnection()">
-            Reconnect
-        </button>
-        <button onclick="updateBalances()">
-            Refresh
-        </button>
-    </div>
-
-    <!-- Scripts - FIXED ORDER -->
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/web3@1.7.0/dist/web3.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="utils.js"></script>
@@ -636,169 +503,5 @@
     <script src="blockchain.js"></script>
     <script src="faucet.js"></script>
     <script src="script.js"></script>
-    
-    <script>
-        // Show debug panel in development
-        if (window.location.href.includes('localhost') || window.location.href.includes('127.0.0.1')) {
-            document.getElementById('debugPanel').style.display = 'flex';
-        }
-        
-        // Auto-show MTK panel after 5 seconds if not connected
-        setTimeout(() => {
-            if (!document.querySelector('.wallet-status.connected')) {
-                document.getElementById('mtkTokenPanel').style.display = 'block';
-            }
-        }, 5000);
-    </script>
-    <!-- EMERGENCY FIX - Add this right after the <body> tag -->
-<script>
-// Emergency override to fix wallet connection
-window.emergencyFix = {
-    // Force connection
-    connect: async function() {
-        try {
-            console.log('EMERGENCY CONNECTION STARTED');
-            
-            if (typeof window.ethereum === 'undefined') {
-                alert('⚠️ MetaMask not found! Please install MetaMask extension.');
-                return false;
-            }
-            
-            // Clear any stuck state
-            window.connected = false;
-            window.userAccount = null;
-            window.web3 = null;
-            
-            // Request connection
-            const accounts = await window.ethereum.request({ 
-                method: 'eth_requestAccounts' 
-            });
-            
-            if (accounts.length === 0) {
-                alert('❌ Please unlock MetaMask first!');
-                return false;
-            }
-            
-            // Set up Web3
-            window.web3 = new Web3(window.ethereum);
-            window.userAccount = accounts[0];
-            window.connected = true;
-            
-            console.log('✅ EMERGENCY CONNECTION SUCCESSFUL');
-            console.log('Account:', window.userAccount);
-            
-            // Update UI manually
-            this.updateUI();
-            
-            alert('✅ Wallet connected successfully!\nAddress: ' + 
-                  window.userAccount.substring(0, 10) + '...');
-            
-            return true;
-            
-        } catch (error) {
-            console.error('EMERGENCY CONNECTION ERROR:', error);
-            alert('Connection failed: ' + error.message);
-            return false;
-        }
-    },
-    
-    // Update UI
-    updateUI: function() {
-        // Update wallet status
-        const walletStatus = document.querySelector('.wallet-status');
-        if (walletStatus) {
-            walletStatus.innerHTML = '<i class="fas fa-check-circle"></i><span>Connected</span>';
-            walletStatus.classList.add('connected');
-        }
-        
-        // Update connect button
-        const connectBtn = document.getElementById('connectBtn');
-        if (connectBtn) {
-            connectBtn.innerHTML = '<i class="fas fa-wallet"></i> Disconnect';
-            connectBtn.onclick = function() {
-                window.location.reload();
-            };
-        }
-        
-        // Update address
-        const addrElement = document.getElementById('accountAddress');
-        if (addrElement && window.userAccount) {
-            addrElement.textContent = 
-                window.userAccount.substring(0, 6) + '...' + 
-                window.userAccount.substring(38);
-        }
-        
-        // Update network
-        const networkElement = document.getElementById('network');
-        if (networkElement) {
-            networkElement.textContent = 'Connected';
-        }
-    },
-    
-    // Test token address
-    testAddress: function() {
-        console.log('=== TOKEN ADDRESS TEST ===');
-        const addresses = [
-            '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238', // USDC Sepolia
-            '0x3D6Eb3Fc92C799CB6b8716c5c8E5f8A78eFE8A43'  // Your old address
-        ];
-        
-        addresses.forEach(addr => {
-            console.log('Address:', addr);
-            console.log('Is valid?', /^0x[a-fA-F0-9]{40}$/.test(addr));
-        });
-    }
-};
-
-// Override the connectWallet function
-window.connectWallet = async function() {
-    return await window.emergencyFix.connect();
-};
-
-// Add emergency button
-document.addEventListener('DOMContentLoaded', function() {
-    // Add test button
-    const testBtn = document.createElement('button');
-    testBtn.textContent = 'TEST CONNECTION';
-    testBtn.style.cssText = `
-        position: fixed;
-        bottom: 50px;
-        left: 10px;
-        background: red;
-        color: white;
-        padding: 10px 15px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        z-index: 9999;
-        font-weight: bold;
-        font-size: 12px;
-    `;
-    testBtn.onclick = window.emergencyFix.connect;
-    document.body.appendChild(testBtn);
-    
-    // Add address test button
-    const addrBtn = document.createElement('button');
-    addrBtn.textContent = 'TEST ADDRESS';
-    addrBtn.style.cssText = `
-        position: fixed;
-        bottom: 90px;
-        left: 10px;
-        background: orange;
-        color: black;
-        padding: 10px 15px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        z-index: 9999;
-        font-weight: bold;
-        font-size: 12px;
-    `;
-    addrBtn.onclick = window.emergencyFix.testAddress;
-    document.body.appendChild(addrBtn);
-});
-
-console.log('✅ Emergency fix loaded');
-</script>
 </body>
 </html>
