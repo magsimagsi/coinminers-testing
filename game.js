@@ -300,50 +300,89 @@ function upgradeSpeed() {
     }
 }
 
-function claimTokens() {
+// Claim Tokens - UPDATED VERSION
+async function claimTokens() {
+    console.log('Claim tokens called. Current claimable balance:', claimableBalance);
+    
     if (claimableBalance <= 0) {
-        showNotification('No tokens to claim!', 'error');
+        showNotification('No tokens to claim! Mine some first.', 'error');
         return;
     }
     
-    const claimedAmount = claimableBalance;
-    walletTokenBalance += claimedAmount;
-    totalClaimed += claimedAmount;
-    claimableBalance = 0;
-    score = 0;
+    // Check if wallet is connected
+    if (!window.connected || !window.userAccount) {
+        const connectFirst = confirm('Wallet not connected. Connect wallet to claim MTK tokens?');
+        if (connectFirst && typeof connectWallet === 'function') {
+            await connectWallet();
+            
+            // Wait a moment for connection
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            if (!window.connected) {
+                showNotification('Please connect wallet first', 'error');
+                return;
+            }
+        } else {
+            return;
+        }
+    }
     
-    updateGameUI();
-    showNotification(`✅ Claimed ${claimedAmount} MTK to wallet!`, 'success');
-    addActivity('Claimed', `${claimedAmount} MTK`);
-}
-
-// Add Activity to Log
-function addActivity(title, description) {
-    const activityList = document.getElementById('activityList');
-    if (!activityList) return;
+    const claimedAmount = Math.floor(claimableBalance);
     
-    const activityItem = document.createElement('div');
-    activityItem.className = 'activity-item';
+    if (claimedAmount < 1) {
+        showNotification('Need at least 1 MTK to claim', 'error');
+        return;
+    }
     
-    const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    
-    activityItem.innerHTML = `
-        <div class="activity-icon">
-            <i class="fas fa-coins"></i>
-        </div>
-        <div class="activity-content">
-            <div class="activity-title">${title}</div>
-            <div class="activity-time">${time}</div>
-        </div>
-        <div class="activity-amount">${description}</div>
-    `;
-    
-    activityList.insertBefore(activityItem, activityList.firstChild);
-    
-    // Limit to 10 activities
-    const items = activityList.querySelectorAll('.activity-item');
-    if (items.length > 10) {
-        activityList.removeChild(items[items.length - 1]);
+    try {
+        // Update claim button to show pending state
+        const claimBtn = document.getElementById('claimBtn');
+        if (claimBtn) {
+            claimBtn.classList.add('pending');
+            claimBtn.disabled = true;
+            claimBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Claiming...</span>';
+        }
+        
+        console.log('Attempting to mint', claimedAmount, 'MTK tokens...');
+        
+        // Show notification
+        showNotification(`Claiming ${claimedAmount} MTK...`, 'info');
+        
+        // Convert game tokens to real blockchain tokens
+        const success = await mintGameTokens(claimedAmount);
+        
+        if (success) {
+            // Update game state
+            totalClaimed += claimedAmount;
+            claimableBalance -= claimedAmount;
+            score = 0;
+            
+            updateGameUI();
+            showNotification(`🎮 ${claimedAmount} MTK added to game balance!`, 'success');
+            addActivity('Claimed', `${claimedAmount} MTK`);
+            
+            // Update blockchain wallet balance display
+            setTimeout(() => {
+                if (typeof checkMTKBalance === 'function') {
+                    checkMTKBalance();
+                }
+                if (typeof updateBalances === 'function') {
+                    updateBalances();
+                }
+            }, 1000);
+        }
+        
+    } catch (error) {
+        console.error('Claim error:', error);
+        showNotification('Claim failed: ' + error.message, 'error');
+    } finally {
+        // Reset claim button
+        const claimBtn = document.getElementById('claimBtn');
+        if (claimBtn) {
+            claimBtn.classList.remove('pending');
+            claimBtn.disabled = false;
+            claimBtn.innerHTML = '<i class="fas fa-coins"></i><span>Claim MTK</span><small id="claimableAmount">0 available</small>';
+        }
     }
 }
 
