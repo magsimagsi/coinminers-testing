@@ -657,6 +657,78 @@ async function switchToSepolia() {
         }
     }
 }
+// Add this function to blockchain.js before the export section
+
+// Debug function to check withdrawal readiness
+window.checkWithdrawReady = async function() {
+    console.log('=== CHECKING WITHDRAWAL READINESS ===');
+    
+    const checks = {
+        'MetaMask installed': typeof window.ethereum !== 'undefined',
+        'Wallet connected': connected,
+        'Web3 initialized': web3 !== null,
+        'Token contract loaded': tokenContract !== null,
+        'User account': userAccount,
+        'Network is Sepolia': false,
+        'Has ETH for gas': false,
+        'Has tokens': false,
+        'Form fields exist': false
+    };
+    
+    try {
+        // Check network
+        if (web3) {
+            const chainId = await web3.eth.getChainId();
+            checks['Network is Sepolia'] = chainId === 11155111;
+            console.log('Chain ID:', chainId, 'Expected: 11155111');
+        }
+        
+        // Check ETH balance
+        if (web3 && userAccount) {
+            const ethBalance = await web3.eth.getBalance(userAccount);
+            const ethFormatted = web3.utils.fromWei(ethBalance, 'ether');
+            checks['Has ETH for gas'] = parseFloat(ethFormatted) > 0.001;
+            console.log('ETH Balance:', ethFormatted, 'ETH');
+        }
+        
+        // Check token balance
+        if (tokenContract && userAccount) {
+            const tokenBalance = await tokenContract.methods.balanceOf(userAccount).call();
+            const decimals = await tokenContract.methods.decimals().call();
+            const tokenFormatted = tokenBalance / Math.pow(10, decimals);
+            checks['Has tokens'] = tokenFormatted > 0;
+            console.log('Token Balance:', tokenFormatted, 'tokens');
+            
+            // Update global variable
+            window.walletTokenBalance = tokenFormatted;
+        }
+        
+        // Check form fields
+        const amountInput = document.getElementById('withdrawAmount');
+        const recipientInput = document.getElementById('recipientAddress');
+        checks['Form fields exist'] = !!(amountInput && recipientInput);
+        
+        console.table(checks);
+        
+        // Show results
+        let message = 'Withdrawal Status:\n';
+        Object.entries(checks).forEach(([key, value]) => {
+            message += `${key}: ${value ? '✅' : '❌'}\n`;
+        });
+        
+        alert(message);
+        
+        // Auto-fill form for testing if needed
+        if (checks['Form fields exist'] && userAccount) {
+            if (amountInput && !amountInput.value) amountInput.value = '1';
+            if (recipientInput && !recipientInput.value) recipientInput.value = userAccount;
+        }
+        
+    } catch (error) {
+        console.error('Check error:', error);
+        alert('Error checking: ' + error.message);
+    }
+};
 
 // Export functions
 window.connectWallet = connectWallet;
