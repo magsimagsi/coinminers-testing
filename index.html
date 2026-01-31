@@ -650,5 +650,155 @@
             }
         }, 5000);
     </script>
+    <!-- EMERGENCY FIX - Add this right after the <body> tag -->
+<script>
+// Emergency override to fix wallet connection
+window.emergencyFix = {
+    // Force connection
+    connect: async function() {
+        try {
+            console.log('EMERGENCY CONNECTION STARTED');
+            
+            if (typeof window.ethereum === 'undefined') {
+                alert('⚠️ MetaMask not found! Please install MetaMask extension.');
+                return false;
+            }
+            
+            // Clear any stuck state
+            window.connected = false;
+            window.userAccount = null;
+            window.web3 = null;
+            
+            // Request connection
+            const accounts = await window.ethereum.request({ 
+                method: 'eth_requestAccounts' 
+            });
+            
+            if (accounts.length === 0) {
+                alert('❌ Please unlock MetaMask first!');
+                return false;
+            }
+            
+            // Set up Web3
+            window.web3 = new Web3(window.ethereum);
+            window.userAccount = accounts[0];
+            window.connected = true;
+            
+            console.log('✅ EMERGENCY CONNECTION SUCCESSFUL');
+            console.log('Account:', window.userAccount);
+            
+            // Update UI manually
+            this.updateUI();
+            
+            alert('✅ Wallet connected successfully!\nAddress: ' + 
+                  window.userAccount.substring(0, 10) + '...');
+            
+            return true;
+            
+        } catch (error) {
+            console.error('EMERGENCY CONNECTION ERROR:', error);
+            alert('Connection failed: ' + error.message);
+            return false;
+        }
+    },
+    
+    // Update UI
+    updateUI: function() {
+        // Update wallet status
+        const walletStatus = document.querySelector('.wallet-status');
+        if (walletStatus) {
+            walletStatus.innerHTML = '<i class="fas fa-check-circle"></i><span>Connected</span>';
+            walletStatus.classList.add('connected');
+        }
+        
+        // Update connect button
+        const connectBtn = document.getElementById('connectBtn');
+        if (connectBtn) {
+            connectBtn.innerHTML = '<i class="fas fa-wallet"></i> Disconnect';
+            connectBtn.onclick = function() {
+                window.location.reload();
+            };
+        }
+        
+        // Update address
+        const addrElement = document.getElementById('accountAddress');
+        if (addrElement && window.userAccount) {
+            addrElement.textContent = 
+                window.userAccount.substring(0, 6) + '...' + 
+                window.userAccount.substring(38);
+        }
+        
+        // Update network
+        const networkElement = document.getElementById('network');
+        if (networkElement) {
+            networkElement.textContent = 'Connected';
+        }
+    },
+    
+    // Test token address
+    testAddress: function() {
+        console.log('=== TOKEN ADDRESS TEST ===');
+        const addresses = [
+            '0x1c7D4B196Cb0C7B01d743Fbc6116a902379C7238', // USDC Sepolia
+            '0x3D6Eb3Fc92C799CB6b8716c5c8E5f8A78eFE8A43'  // Your old address
+        ];
+        
+        addresses.forEach(addr => {
+            console.log('Address:', addr);
+            console.log('Is valid?', /^0x[a-fA-F0-9]{40}$/.test(addr));
+        });
+    }
+};
+
+// Override the connectWallet function
+window.connectWallet = async function() {
+    return await window.emergencyFix.connect();
+};
+
+// Add emergency button
+document.addEventListener('DOMContentLoaded', function() {
+    // Add test button
+    const testBtn = document.createElement('button');
+    testBtn.textContent = 'TEST CONNECTION';
+    testBtn.style.cssText = `
+        position: fixed;
+        bottom: 50px;
+        left: 10px;
+        background: red;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        z-index: 9999;
+        font-weight: bold;
+        font-size: 12px;
+    `;
+    testBtn.onclick = window.emergencyFix.connect;
+    document.body.appendChild(testBtn);
+    
+    // Add address test button
+    const addrBtn = document.createElement('button');
+    addrBtn.textContent = 'TEST ADDRESS';
+    addrBtn.style.cssText = `
+        position: fixed;
+        bottom: 90px;
+        left: 10px;
+        background: orange;
+        color: black;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        z-index: 9999;
+        font-weight: bold;
+        font-size: 12px;
+    `;
+    addrBtn.onclick = window.emergencyFix.testAddress;
+    document.body.appendChild(addrBtn);
+});
+
+console.log('✅ Emergency fix loaded');
+</script>
 </body>
 </html>
