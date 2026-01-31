@@ -4,8 +4,14 @@ let userAccount = null;
 let connected = false;
 let tokenContract = null;
 
-// Contract Configuration
+// Contract Configuration - ADD YOUR MTK CONTRACT HERE
 const TOKEN_CONFIG = {
+    MTK: {
+        address: '0x3D6Eb3Fc92C799CB6b8716c5c8E5f8A78eFE8A43', // MTK Test Token on Sepolia
+        name: 'MTK Game Token',
+        symbol: 'MTK',
+        decimals: 18
+    },
     UNI: {
         address: '0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984',
         name: 'Uniswap',
@@ -26,7 +32,7 @@ const TOKEN_CONFIG = {
     }
 };
 
-// ERC20 ABI
+// ERC20 ABI - ADDED mint FUNCTION
 const ERC20_ABI = [
     {
         "constant": true,
@@ -64,6 +70,26 @@ const ERC20_ABI = [
         ],
         "name": "transfer",
         "outputs": [{"name": "success", "type": "bool"}],
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [
+            {"name": "_to", "type": "address"},
+            {"name": "_value", "type": "uint256"}
+        ],
+        "name": "mint",
+        "outputs": [],
+        "type": "function"
+    },
+    {
+        "constant": false,
+        "inputs": [
+            {"name": "to", "type": "address"},
+            {"name": "amount", "type": "uint256"}
+        ],
+        "name": "faucet",
+        "outputs": [],
         "type": "function"
     }
 ];
@@ -114,8 +140,8 @@ async function connectWallet() {
         
         connected = true;
         
-        // Initialize token contract (UNI by default)
-        tokenContract = new web3.eth.Contract(ERC20_ABI, TOKEN_CONFIG.UNI.address);
+        // Initialize token contract (MTK by default)
+        tokenContract = new web3.eth.Contract(ERC20_ABI, TOKEN_CONFIG.MTK.address);
         
         // Get balances
         await updateBalances();
@@ -123,7 +149,7 @@ async function connectWallet() {
         showNotification('Wallet connected successfully!', 'success');
         
         if (!isSepolia) {
-            showNotification('Switch to Sepolia for test tokens', 'warning');
+            showNotification('Switch to Sepolia for MTK tokens', 'warning');
         }
         
         // Listen for account changes
@@ -198,17 +224,16 @@ async function updateBalances() {
         const ethFormatted = web3.utils.fromWei(ethBalance, 'ether');
         updateElement('ethBalance', `${parseFloat(ethFormatted).toFixed(4)} ETH`);
         
-        // Get token balance
+        // Get MTK token balance
         if (tokenContract) {
             const tokenBalance = await tokenContract.methods.balanceOf(userAccount).call();
             const decimals = await tokenContract.methods.decimals().call();
             const tokenFormatted = tokenBalance / Math.pow(10, decimals);
             
-            // Update wallet token balance in game
-            if (typeof window !== 'undefined') {
-                window.walletTokenBalance = tokenFormatted;
-                updateElement('walletTokenBalance', tokenFormatted.toFixed(4));
-            }
+            // Update wallet token balance
+            window.walletTokenBalance = tokenFormatted;
+            updateElement('walletTokenBalance', tokenFormatted.toFixed(4));
+            updateElement('statsWalletBalance', `${tokenFormatted.toFixed(4)} MTK`);
         }
         
         // Get latest block
@@ -217,6 +242,101 @@ async function updateBalances() {
         
     } catch (error) {
         console.error('Balance update error:', error);
+    }
+}
+
+// NEW FUNCTION: Get MTK Tokens from Faucet
+async function getMTKFromFaucet() {
+    if (!connected || !web3 || !tokenContract) {
+        showNotification('Connect wallet first!', 'error');
+        return;
+    }
+    
+    try {
+        showPendingOverlay('Getting MTK tokens from faucet...');
+        
+        // Call faucet function on contract
+        const tx = await tokenContract.methods.faucet(
+            userAccount,
+            web3.utils.toWei('100', 'ether') // 100 MTK tokens
+        ).send({
+            from: userAccount,
+            gas: 100000
+        });
+        
+        // Wait for transaction
+        const receipt = await web3.eth.getTransactionReceipt(tx.transactionHash);
+        
+        if (receipt.status) {
+            hidePendingOverlay();
+            showNotification('✅ Received 100 MTK tokens!', 'success');
+            await updateBalances();
+        } else {
+            hidePendingOverlay();
+            showNotification('Faucet transaction failed', 'error');
+        }
+        
+    } catch (error) {
+        hidePendingOverlay();
+        console.error('Faucet error:', error);
+        
+        if (error.message.includes('rejected')) {
+            showNotification('Transaction rejected', 'error');
+        } else {
+            showNotification('Faucet error: ' + error.message, 'error');
+        }
+    }
+}
+
+// NEW FUNCTION: Convert Game MTK to Real MTK Tokens
+async function convertGameToRealMTK(amount) {
+    if (!connected || !web3 || !tokenContract) {
+        showNotification('Connect wallet first!', 'error');
+        return false;
+    }
+    
+    try {
+        showPendingOverlay('Converting game MTK to real tokens...');
+        
+        // Convert amount to wei
+        const decimals = await tokenContract.methods.decimals().call();
+        const amountInWei = (amount * Math.pow(10, decimals)).toString();
+        
+        // Call mint function on contract (only works if you're contract owner)
+        // For now, we'll use transfer from contract's balance
+        const tx = await tokenContract.methods.transfer(
+            userAccount,
+            amountInWei
+        ).send({
+            from: userAccount,
+            gas: 100000
+        });
+        
+        const receipt = await web3.eth.getTransactionReceipt(tx.transactionHash);
+        
+        if (receipt.status) {
+            hidePendingOverlay();
+            showNotification(`✅ Converted ${amount} MTK to real tokens!`, 'success');
+            await updateBalances();
+            return true;
+        } else {
+            hidePendingOverlay();
+            showNotification('Conversion failed', 'error');
+            return false;
+        }
+        
+    } catch (error) {
+        hidePendingOverlay();
+        console.error('Conversion error:', error);
+        
+        if (error.message.includes('rejected')) {
+            showNotification('Transaction rejected', 'error');
+        } else if (error.message.includes('insufficient')) {
+            showNotification('Contract needs more MTK tokens', 'error');
+        } else {
+            showNotification('Conversion error: ' + error.message, 'error');
+        }
+        return false;
     }
 }
 
@@ -262,7 +382,7 @@ async function estimateWithdrawGas() {
     console.log('Wallet balance:', walletBalance, 'Requested:', amount);
     
     if (walletBalance < amount) {
-        showNotification(`Insufficient balance! You have ${walletBalance.toFixed(4)} tokens`, 'error');
+        showNotification(`Insufficient balance! You have ${walletBalance.toFixed(4)} MTK`, 'error');
         return;
     }
     
@@ -274,25 +394,22 @@ async function estimateWithdrawGas() {
         console.log('Token decimals:', decimals);
         
         // Convert amount using token's decimals
-        const amountInWei = web3.utils.toBN(amount.toString()).mul(web3.utils.toBN(10).pow(web3.utils.toBN(decimals)));
-        console.log('Amount in wei (correct):', amountInWei.toString());
+        const amountInWei = (amount * Math.pow(10, decimals)).toString();
+        console.log('Amount in wei:', amountInWei);
         
         // Estimate gas
         const estimatedGas = await tokenContract.methods.transfer(
             recipient, 
-            amountInWei.toString()
+            amountInWei
         ).estimateGas({ from: userAccount });
         
         // Get gas price
         const gasPrice = await web3.eth.getGasPrice();
-        const gasCostEth = web3.utils.fromWei(
-            (BigInt(estimatedGas) * BigInt(gasPrice)).toString(), 
-            'ether'
-        );
+        const gasCostEth = estimatedGas * gasPrice / Math.pow(10, 18);
         
         console.log('Gas estimate:', {
             estimatedGas,
-            gasPrice: web3.utils.fromWei(gasPrice, 'gwei'),
+            gasPrice: gasPrice / Math.pow(10, 9),
             gasCostEth
         });
         
@@ -304,8 +421,8 @@ async function estimateWithdrawGas() {
                 <div>
                     <strong>Gas Estimate ✅</strong><br>
                     Units: ${estimatedGas.toLocaleString()}<br>
-                    Price: ${parseFloat(web3.utils.fromWei(gasPrice, 'gwei')).toFixed(2)} Gwei<br>
-                    Cost: ~${parseFloat(gasCostEth).toFixed(6)} ETH<br>
+                    Price: ${(gasPrice / Math.pow(10, 9)).toFixed(2)} Gwei<br>
+                    Cost: ~${gasCostEth.toFixed(6)} ETH<br>
                     <small style="color: #94a3b8;">Network: Sepolia Testnet</small>
                 </div>
             `;
@@ -316,7 +433,7 @@ async function estimateWithdrawGas() {
         const withdrawBtn = document.querySelector('.btn-withdraw');
         if (withdrawBtn) {
             withdrawBtn.disabled = false;
-            withdrawBtn.textContent = `Withdraw ${amount} Tokens`;
+            withdrawBtn.textContent = `Withdraw ${amount} MTK`;
             withdrawBtn.style.opacity = '1';
             withdrawBtn.style.cursor = 'pointer';
         }
@@ -336,8 +453,6 @@ async function estimateWithdrawGas() {
             errorMessage = 'Amount exceeds token balance';
         } else if (error.message.includes('revert')) {
             errorMessage = 'Transaction would fail (check balance and address)';
-        } else if (error.message.includes('always failing transaction')) {
-            errorMessage = 'Transaction will fail. Check recipient address.';
         } else {
             errorMessage = 'Gas estimation failed: ' + error.message;
         }
@@ -365,7 +480,7 @@ async function withdrawTokens() {
     const recipientInput = document.getElementById('recipientAddress');
     
     if (!amountInput || !recipientInput) {
-        console.error('Form inputs not found:', { amountInput, recipientInput });
+        console.error('Form inputs not found');
         showNotification('Error: Form fields not found', 'error');
         return;
     }
@@ -391,88 +506,40 @@ async function withdrawTokens() {
         return;
     }
     
-    // Check wallet balance from global variable
+    // Check wallet balance
     const walletBalance = window.walletTokenBalance || 0;
     console.log('Balance check - Wallet:', walletBalance, 'Requested:', amount);
     
     if (walletBalance < amount) {
-        showNotification(`Insufficient balance! You have ${walletBalance.toFixed(4)} tokens`, 'error');
+        showNotification(`Insufficient balance! You have ${walletBalance.toFixed(4)} MTK`, 'error');
         return;
     }
     
     try {
-        showPendingOverlay('Preparing withdrawal transaction...');
+        showPendingOverlay('Sending MTK tokens...');
         
         // Get token decimals
         const decimals = await tokenContract.methods.decimals().call();
-        console.log('Token decimals:', decimals);
         
-        // Convert amount using token's decimals
-        const amountInWei = web3.utils.toBN(amount.toString()).mul(web3.utils.toBN(10).pow(web3.utils.toBN(decimals)));
-        console.log('Amount in wei:', amountInWei.toString());
-        
-        // Update pending overlay
-        const pendingText = document.getElementById('pendingText');
-        if (pendingText) {
-            pendingText.textContent = 'Sign transaction in MetaMask...';
-        }
-        
-        // Estimate gas with safety margin
-        let estimatedGas;
-        try {
-            estimatedGas = await tokenContract.methods.transfer(
-                recipient, 
-                amountInWei.toString()
-            ).estimateGas({ from: userAccount });
-            estimatedGas = Math.floor(estimatedGas * 1.3); // 30% safety margin
-            console.log('Estimated gas (with margin):', estimatedGas);
-        } catch (gasError) {
-            console.warn('Gas estimation failed, using default:', gasError);
-            estimatedGas = 150000; // Default gas limit for ERC20 transfers
-        }
-        
-        // Get gas price with 25% increase for faster confirmation
-        const gasPrice = await web3.eth.getGasPrice();
-        const increasedGasPrice = Math.floor(Number(gasPrice) * 1.25).toString();
-        console.log('Gas price:', gasPrice, 'Increased:', increasedGasPrice);
-        
-        console.log('Transaction params:', {
-            from: userAccount,
-            to: tokenContract.options.address,
-            gas: estimatedGas,
-            gasPrice: increasedGasPrice
-        });
-        
-        // Check if user has enough ETH for gas
-        const ethBalance = await web3.eth.getBalance(userAccount);
-        const gasCost = BigInt(estimatedGas) * BigInt(increasedGasPrice);
-        console.log('ETH balance:', ethBalance, 'Gas cost:', gasCost.toString());
-        
-        if (BigInt(ethBalance) < gasCost) {
-            hidePendingOverlay();
-            const neededEth = web3.utils.fromWei((gasCost - BigInt(ethBalance)).toString(), 'ether');
-            showNotification(`Need ${parseFloat(neededEth).toFixed(6)} more ETH for gas fees`, 'error');
-            return;
-        }
+        // Convert amount
+        const amountInWei = (amount * Math.pow(10, decimals)).toString();
         
         // Send transaction
         const tx = await tokenContract.methods.transfer(
             recipient, 
-            amountInWei.toString()
-        ).send({ 
+            amountInWei
+        ).send({
             from: userAccount,
-            gas: estimatedGas,
-            gasPrice: increasedGasPrice
+            gas: 150000
         });
         
-        console.log('Transaction sent:', tx);
-        
-        // Update overlay with transaction hash
+        // Update overlay
         const pendingTxHash = document.getElementById('pendingTxHash');
+        const pendingText = document.getElementById('pendingText');
+        
         if (pendingTxHash) {
-            const shortHash = tx.transactionHash.substring(0, 20) + '...';
             pendingTxHash.innerHTML = `
-                Tx Hash: ${shortHash}<br>
+                Tx Hash: ${tx.transactionHash.substring(0, 20)}...<br>
                 <a href="https://sepolia.etherscan.io/tx/${tx.transactionHash}" 
                    target="_blank" 
                    style="color: #f8c555; font-size: 0.9em;">
@@ -482,56 +549,32 @@ async function withdrawTokens() {
         }
         
         if (pendingText) {
-            pendingText.textContent = 'Waiting for confirmation... (This may take 15-30 seconds)';
+            pendingText.textContent = 'Waiting for confirmation...';
         }
         
-        // Wait for transaction to be mined
+        // Wait for confirmation
         let receipt;
         let attempts = 0;
-        const maxAttempts = 60; // 60 seconds timeout
         
-        while (!receipt && attempts < maxAttempts) {
-            try {
-                receipt = await web3.eth.getTransactionReceipt(tx.transactionHash);
-                if (!receipt) {
-                    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
-                    attempts++;
-                    console.log(`Waiting for confirmation... attempt ${attempts}/${maxAttempts}`);
-                    
-                    // Update waiting message
-                    if (pendingText && attempts % 5 === 0) {
-                        pendingText.textContent = `Waiting for confirmation... ${attempts}s`;
-                    }
-                }
-            } catch (error) {
-                console.warn('Error checking receipt:', error);
-                attempts++;
+        while (!receipt && attempts < 30) {
+            receipt = await web3.eth.getTransactionReceipt(tx.transactionHash);
+            if (!receipt) {
                 await new Promise(resolve => setTimeout(resolve, 1000));
+                attempts++;
             }
         }
         
-        if (!receipt) {
-            throw new Error('Transaction timeout - check Etherscan for status');
-        }
-        
-        console.log('Transaction receipt:', receipt);
-        
-        if (receipt.status) {
+        if (receipt && receipt.status) {
             // SUCCESS
             hidePendingOverlay();
             
-            // Update balances
-            if (typeof window.walletTokenBalance !== 'undefined') {
-                window.walletTokenBalance = Math.max(0, window.walletTokenBalance - amount);
-            }
-            
-            if (typeof window.totalWithdrawn !== 'undefined') {
-                window.totalWithdrawn = (window.totalWithdrawn || 0) + amount;
-            }
+            // Update balance
+            window.walletTokenBalance -= amount;
+            window.totalWithdrawn = (window.totalWithdrawn || 0) + amount;
             
             // Update UI
-            updateElement('walletTokenBalance', (window.walletTokenBalance || 0).toFixed(4));
-            updateElement('totalWithdrawn', window.totalWithdrawn || 0);
+            updateElement('walletTokenBalance', window.walletTokenBalance.toFixed(4));
+            updateElement('totalWithdrawn', window.totalWithdrawn);
             
             // Clear form
             if (amountInput) amountInput.value = '';
@@ -539,43 +582,29 @@ async function withdrawTokens() {
             // Add to transaction history
             addTransactionToHistory(tx.transactionHash, amount, recipient, 'success');
             
-            showNotification(`✅ Successfully withdrew ${amount} tokens!`, 'success');
+            showNotification(`✅ Successfully sent ${amount} MTK!`, 'success');
             
-            // Refresh balances after 3 seconds
-            setTimeout(() => {
-                if (connected) updateBalances();
-            }, 3000);
+            // Refresh balance
+            setTimeout(() => updateBalances(), 2000);
             
         } else {
             // FAILED
             hidePendingOverlay();
-            showNotification('Transaction failed on-chain', 'error');
+            showNotification('Transaction failed', 'error');
             addTransactionToHistory(tx.transactionHash, amount, recipient, 'failed');
         }
         
     } catch (error) {
         hidePendingOverlay();
-        console.error('Withdrawal error details:', error);
-        
-        let userMessage = 'Withdrawal failed';
+        console.error('Withdrawal error:', error);
         
         if (error.code === 4001) {
-            userMessage = 'Transaction rejected by user';
+            showNotification('Transaction rejected by user', 'error');
         } else if (error.message.includes('insufficient funds')) {
-            userMessage = 'Insufficient ETH for gas fees. Get Sepolia ETH from faucet.';
-        } else if (error.message.includes('underpriced')) {
-            userMessage = 'Gas price too low. Try estimating gas again.';
-        } else if (error.message.includes('revert')) {
-            userMessage = 'Transaction reverted. Check your token balance.';
-        } else if (error.message.includes('timeout')) {
-            userMessage = 'Transaction taking too long. Check Etherscan for status.';
-        } else if (error.message.includes('nonce')) {
-            userMessage = 'Nonce error. Please try again in a moment.';
+            showNotification('Insufficient ETH for gas fees', 'error');
         } else {
-            userMessage = `Error: ${error.message.substring(0, 100)}`;
+            showNotification('Withdrawal failed: ' + error.message, 'error');
         }
-        
-        showNotification(userMessage, 'error');
     }
 }
 
@@ -600,7 +629,7 @@ function addTransactionToHistory(txHash, amount, recipient, status) {
     transactionItem.innerHTML = `
         <i class="fas fa-${status === 'success' ? 'check-circle' : 'times-circle'}"></i>
         <div class="transaction-details">
-            <div class="transaction-amount">${amount} tokens</div>
+            <div class="transaction-amount">${amount} MTK</div>
             <div class="transaction-to">To: ${shortRecipient}</div>
             <div class="transaction-hash">${shortHash}</div>
         </div>
@@ -657,78 +686,33 @@ async function switchToSepolia() {
         }
     }
 }
-// Add this function to blockchain.js before the export section
 
-// Debug function to check withdrawal readiness
-window.checkWithdrawReady = async function() {
-    console.log('=== CHECKING WITHDRAWAL READINESS ===');
-    
-    const checks = {
-        'MetaMask installed': typeof window.ethereum !== 'undefined',
-        'Wallet connected': connected,
-        'Web3 initialized': web3 !== null,
-        'Token contract loaded': tokenContract !== null,
-        'User account': userAccount,
-        'Network is Sepolia': false,
-        'Has ETH for gas': false,
-        'Has tokens': false,
-        'Form fields exist': false
-    };
+// NEW: Add MTK to MetaMask
+async function addMTKToMetaMask() {
+    if (!window.ethereum) {
+        showNotification('MetaMask not installed', 'error');
+        return;
+    }
     
     try {
-        // Check network
-        if (web3) {
-            const chainId = await web3.eth.getChainId();
-            checks['Network is Sepolia'] = chainId === 11155111;
-            console.log('Chain ID:', chainId, 'Expected: 11155111');
-        }
-        
-        // Check ETH balance
-        if (web3 && userAccount) {
-            const ethBalance = await web3.eth.getBalance(userAccount);
-            const ethFormatted = web3.utils.fromWei(ethBalance, 'ether');
-            checks['Has ETH for gas'] = parseFloat(ethFormatted) > 0.001;
-            console.log('ETH Balance:', ethFormatted, 'ETH');
-        }
-        
-        // Check token balance
-        if (tokenContract && userAccount) {
-            const tokenBalance = await tokenContract.methods.balanceOf(userAccount).call();
-            const decimals = await tokenContract.methods.decimals().call();
-            const tokenFormatted = tokenBalance / Math.pow(10, decimals);
-            checks['Has tokens'] = tokenFormatted > 0;
-            console.log('Token Balance:', tokenFormatted, 'tokens');
-            
-            // Update global variable
-            window.walletTokenBalance = tokenFormatted;
-        }
-        
-        // Check form fields
-        const amountInput = document.getElementById('withdrawAmount');
-        const recipientInput = document.getElementById('recipientAddress');
-        checks['Form fields exist'] = !!(amountInput && recipientInput);
-        
-        console.table(checks);
-        
-        // Show results
-        let message = 'Withdrawal Status:\n';
-        Object.entries(checks).forEach(([key, value]) => {
-            message += `${key}: ${value ? '✅' : '❌'}\n`;
+        await window.ethereum.request({
+            method: 'wallet_watchAsset',
+            params: {
+                type: 'ERC20',
+                options: {
+                    address: TOKEN_CONFIG.MTK.address,
+                    symbol: 'MTK',
+                    decimals: 18,
+                    image: 'https://via.placeholder.com/32/f8c555/000000?text=MTK'
+                },
+            },
         });
-        
-        alert(message);
-        
-        // Auto-fill form for testing if needed
-        if (checks['Form fields exist'] && userAccount) {
-            if (amountInput && !amountInput.value) amountInput.value = '1';
-            if (recipientInput && !recipientInput.value) recipientInput.value = userAccount;
-        }
-        
+        showNotification('MTK token added to MetaMask!', 'success');
     } catch (error) {
-        console.error('Check error:', error);
-        alert('Error checking: ' + error.message);
+        console.error('Error adding token:', error);
+        showNotification('Failed to add token to MetaMask', 'error');
     }
-};
+}
 
 // Export functions
 window.connectWallet = connectWallet;
@@ -737,3 +721,6 @@ window.estimateWithdrawGas = estimateWithdrawGas;
 window.withdrawTokens = withdrawTokens;
 window.refreshTransactions = refreshTransactions;
 window.switchToSepolia = switchToSepolia;
+window.getMTKFromFaucet = getMTKFromFaucet;
+window.addMTKToMetaMask = addMTKToMetaMask;
+window.convertGameToRealMTK = convertGameToRealMTK;
