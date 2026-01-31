@@ -231,19 +231,12 @@ a:hover {
     border-radius: var(--border-radius);
     color: var(--error);
     font-size: 0.9rem;
-    transition: all var(--transition-normal);
 }
 
 .wallet-status.connected {
     background: rgba(46, 213, 115, 0.1);
     border-color: rgba(46, 213, 115, 0.2);
     color: var(--success);
-    cursor: pointer;
-}
-
-.wallet-status.connected:hover {
-    background: rgba(46, 213, 115, 0.2);
-    transform: translateY(-2px);
 }
 
 /* ============================================
@@ -306,12 +299,6 @@ a:hover {
     background: var(--text-tertiary);
 }
 
-/* Disconnect button style */
-#connectBtn.disconnected {
-    background: linear-gradient(135deg, var(--error), var(--error-dark));
-    color: white;
-}
-
 .btn-game {
     background: rgba(248, 197, 85, 0.1);
     border: 2px solid var(--primary);
@@ -337,18 +324,11 @@ a:hover {
     color: white;
     flex-direction: column;
     height: 100%;
-    position: relative;
-    overflow: hidden;
 }
 
 .btn-claim:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(46, 213, 115, 0.3);
-}
-
-/* Claim button animation */
-.btn-claim.pending {
-    animation: pulse 1s infinite;
 }
 
 .btn-estimate {
@@ -527,21 +507,6 @@ a:hover {
     color: var(--text-secondary);
 }
 
-/* Mining notification */
-.mining-notification {
-    position: absolute;
-    background: var(--primary);
-    color: black;
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-weight: bold;
-    font-size: 12px;
-    animation: floatUp 1s ease-out forwards;
-    pointer-events: none;
-    z-index: 100;
-    box-shadow: 0 2px 8px rgba(248, 197, 85, 0.5);
-}
-
 /* ============================================
    WALLET SECTION
 ============================================ */
@@ -694,7 +659,6 @@ a:hover {
     align-items: center;
     gap: var(--spacing-md);
     transition: background var(--transition-normal);
-    border-left: 4px solid var(--border-color);
 }
 
 .transaction-item:hover {
@@ -707,29 +671,11 @@ a:hover {
     text-align: center;
     color: var(--text-tertiary);
     min-height: 150px;
-    border-left: 4px solid transparent;
 }
 
 .transaction-item.empty i {
     font-size: 2rem;
     margin-bottom: var(--spacing-sm);
-}
-
-/* Transaction status colors */
-.transaction-item.success {
-    border-left-color: var(--success);
-}
-
-.transaction-item.failed {
-    border-left-color: var(--error);
-}
-
-.transaction-item.pending {
-    border-left-color: var(--warning);
-}
-
-.transaction-item.faucet {
-    border-left-color: var(--primary);
 }
 
 /* ============================================
@@ -1186,75 +1132,6 @@ a:hover {
 }
 
 /* ============================================
-   MTK TOKEN PANEL
-============================================ */
-.mtk-token-panel {
-    position: fixed;
-    bottom: 70px;
-    right: 20px;
-    background: rgba(30, 41, 59, 0.95);
-    border: 1px solid var(--primary);
-    border-radius: var(--border-radius-lg);
-    padding: var(--spacing-md);
-    width: 280px;
-    z-index: 9998;
-    backdrop-filter: blur(10px);
-    box-shadow: var(--shadow-xl);
-    display: none;
-    animation: slideInUp 0.3s ease;
-}
-
-/* ============================================
-   DEBUG PANEL
-============================================ */
-.debug-panel {
-    position: fixed;
-    bottom: 10px;
-    left: 10px;
-    background: rgba(0, 0, 0, 0.8);
-    padding: var(--spacing-sm);
-    border-radius: var(--border-radius);
-    z-index: 9997;
-    display: flex;
-    gap: 5px;
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--border-color);
-}
-
-.debug-panel button {
-    background: var(--primary);
-    color: black;
-    padding: 6px 10px;
-    border-radius: var(--border-radius-sm);
-    font-size: 11px;
-    border: none;
-    cursor: pointer;
-    transition: opacity var(--transition-fast);
-    font-weight: bold;
-}
-
-.debug-panel button:hover {
-    opacity: 0.8;
-}
-
-/* ============================================
-   ETHSCAN LINK
-============================================ */
-.etherscan-link {
-    color: var(--primary);
-    text-decoration: none;
-    font-size: 0.9em;
-    display: inline-flex;
-    align-items: center;
-    gap: 5px;
-}
-
-.etherscan-link:hover {
-    color: var(--primary-light);
-    text-decoration: underline;
-}
-
-/* ============================================
    ANIMATIONS
 ============================================ */
 @keyframes fadeIn {
@@ -1307,31 +1184,9 @@ a:hover {
 }
 
 @keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-@keyframes floatUp {
-    0% {
-        transform: translateY(0);
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(-40px);
-        opacity: 0;
-    }
-}
-
-@keyframes slideInUp {
-    from {
-        transform: translateY(20px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
+    0% { transform: scale(1); opacity: 0.8; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.8; }
 }
 
 /* ============================================
@@ -1398,20 +1253,6 @@ a:hover {
     .btn-game, .btn-claim {
         height: 80px;
     }
-    
-    .mtk-token-panel {
-        right: 10px;
-        left: 10px;
-        width: auto;
-    }
-    
-    .stats-charts {
-        grid-template-columns: 1fr;
-    }
-    
-    .stats-charts .chart-card {
-        min-width: 100%;
-    }
 }
 
 @media (max-width: 576px) {
@@ -1444,19 +1285,6 @@ a:hover {
         flex-direction: column;
         text-align: center;
         gap: var(--spacing-md);
-    }
-    
-    .mtk-token-panel {
-        bottom: 60px;
-        right: 10px;
-        left: 10px;
-        width: auto;
-        max-width: calc(100% - 20px);
-    }
-    
-    .debug-panel {
-        flex-direction: column;
-        bottom: 60px;
     }
 }
 
