@@ -1,0 +1,1 @@
+# coinminers-testing
